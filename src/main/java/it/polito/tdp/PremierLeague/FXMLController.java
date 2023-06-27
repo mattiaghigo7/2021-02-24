@@ -7,7 +7,6 @@ package it.polito.tdp.PremierLeague;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-
 import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Model;
 import javafx.event.ActionEvent;
@@ -47,17 +46,45 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	
+    	Match m = this.cmbMatch.getValue();
+    	if(m==null) {
+    		this.txtResult.setText("Selezionare un match.");
+    		return;
+    	}
+    	model.creaGrafo(m);
+    	this.txtResult.setText("Grafo creato\n");
+    	this.txtResult.appendText("# VERTICI: "+model.getVerticiSize()+"\n");
+    	this.txtResult.appendText("# ARCHI: "+model.getArchiSize()+"\n");
+    	this.btnGiocatoreMigliore.setDisable(false);
+    	this.txtN.setDisable(false);
+    	this.btnSimula.setDisable(false);
     }
 
     @FXML
     void doGiocatoreMigliore(ActionEvent event) {    	
-    	
+    	this.txtResult.setText("Giocatore migliore:\n");
+    	this.txtResult.appendText(model.getGiocatoreMigliore().toString()+", delta efficienza = "+Math.round(model.getDelta()*1000.0)/1000.0);
     }
     
     @FXML
     void doSimula(ActionEvent event) {
-
+    	String input = this.txtN.getText();
+    	if(input=="") {
+    		this.txtResult.setText("Inserire un valore N.");
+    		return;
+    	}
+    	try {
+    		Integer N = Integer.parseInt(input);
+    		model.simula(N);
+    		this.txtResult.setText("Simulazione eseguita\n");
+    		this.txtResult.appendText("Goal squadra di casa: "+model.getGoal1()+"\n");
+    		this.txtResult.appendText("Goal squadra in trasferta: "+model.getGoal2()+"\n");
+    		this.txtResult.appendText("Espulsioni squadra di casa: "+model.getEsp1()+"\n");
+    		this.txtResult.appendText("Espulsioni squadra in trasferta: "+model.getEsp2()+"\n");
+    	} catch (NumberFormatException e) {
+    		this.txtResult.setText("Il valore immesso non è valido.");
+    		return;
+    	}
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -73,5 +100,9 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.cmbMatch.getItems().addAll(model.getAllMatches());
+    	this.btnGiocatoreMigliore.setDisable(true);
+    	this.txtN.setDisable(true);
+    	this.btnSimula.setDisable(true);
     }
 }
